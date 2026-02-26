@@ -2,8 +2,7 @@ name: kit3d
 
 services:
   kit3d-front:
-    build:
-      context: ../kit3d-front
+    image: ${REGISTRY}/kit3d-front:${FRONT_TAG}
     restart: always
     platform: ${PLATFORM}
     depends_on:
