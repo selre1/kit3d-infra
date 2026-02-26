@@ -1,0 +1,109 @@
+name: kit3d
+
+services:
+  kit3d-front:
+    build:
+      context: ../kit3d-front
+    restart: always
+    platform: ${PLATFORM}
+    depends_on:
+      - kit3d-back
+    networks:
+      - kit3d
+
+  kit3d-back:
+    build:
+      context: ../kit3d-back
+    platform: ${PLATFORM}
+    restart: always
+    environment:
+      DB_HOST: kit3d-postgres
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      CELERY_QUEUE: import_jobs
+      CELERY_TILES_QUEUE: tile_jobs
+      UPLOAD_DIR: /data/assets
+    volumes:
+      - ./data/assets:/data/assets
+    depends_on:
+      - kit3d-postgres
+      - kit3d-rabbitmq
+    networks:
+      - kit3d
+
+  kit3d-engin:
+    build:
+      context: ../kit3d-engin
+    platform: ${PLATFORM}
+    restart: always
+    environment:
+      DB_HOST: kit3d-postgres
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      CELERY_QUEUE: import_jobs
+      CELERY_PREFETCH: "1"
+      CELERY_BROKER_HEARTBEAT: "0"
+      ASSETS_DIR: /data/assets
+      PG2B3DM_BIN: /usr/local/bin/pg2b3dm
+      GLTF_PIPELINE_BIN: /usr/local/bin/gltf-pipeline
+      CELERY_QUEUES: import_jobs,tile_jobs
+      CELERY_CONCURRENCY: "4"
+    volumes:
+      - ./data/assets:/data/assets
+    depends_on:
+      - kit3d-postgres
+      - kit3d-rabbitmq
+    networks:
+      - kit3d
+
+  kit3d-postgres:
+    image: postgis/postgis:18-3.6
+    platform: ${PLATFORM}
+    restart: always
+    environment:
+      TZ: Asia/Seoul
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql
+    networks:
+      - kit3d
+
+  kit3d-rabbitmq:
+    image: rabbitmq:3-management
+    platform: ${PLATFORM}
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq
+    ports:
+      - "15672:15672"
+    networks:
+      - kit3d
+
+  kit3d-proxy:
+    image: nginx:1.27-alpine
+    platform: ${PLATFORM}
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./kit3d-proxy/conf.d:/etc/nginx/conf.d:ro
+      - ./data/assets:/data/assets:ro
+    depends_on:
+      - kit3d-front
+      - kit3d-back
+    networks:
+      - kit3d
+
+networks:
+  kit3d:
+
