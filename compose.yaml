@@ -110,6 +110,9 @@ services:
       - kit3d-back
     networks:
       - kit3d
+    labels:
+    - "com.centurylinklabs.watchtower.scope=kit3d"
+    - "com.centurylinklabs.watchtower.lifecycle.post-update=nginx -s reload"
 
   kit3d-flyway:
     image: flyway/flyway:latest
