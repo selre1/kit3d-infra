@@ -11,8 +11,9 @@ services:
       - kit3d
 
   kit3d-back:
-    build:
-      context: ../kit3d-back
+    # build:
+    #  context: ../kit3d-back
+    image: ${REGISTRY}/kit3d-back:${BACK_TAG}
     platform: ${PLATFORM}
     restart: always
     environment:
@@ -33,8 +34,9 @@ services:
       - kit3d
 
   kit3d-engin:
-    build:
-      context: ../kit3d-engin
+    # build:
+    #  context: ../kit3d-engin
+    image: ${REGISTRY}/kit3d-engin:${ENGIN_TAG}
     platform: ${PLATFORM}
     restart: always
     environment:
