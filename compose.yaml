@@ -138,7 +138,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TZ=Asia/Seoul
-    command: --interval 300 --cleanup --scope kit3d  # 5분 / 이전 이미지 정리 / 범위
+    command: --interval 300 --cleanup --scope kit3d --enable-lifecycle-hooks  # 5분 / 이전 이미지 정리 / 범위
     labels: ["com.centurylinklabs.watchtower.scope=kit3d"]
 
 networks:
