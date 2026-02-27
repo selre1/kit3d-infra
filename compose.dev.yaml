@@ -104,5 +104,21 @@ services:
     networks:
       - kit3d
 
+  kit3d-flyway:
+    image: flyway/flyway:latest
+    platform: ${PLATFORM}
+    command: >
+      -url=jdbc:postgresql://kit3d-postgres:5432/${POSTGRES_DB}
+      -user=${POSTGRES_USER}
+      -password=${POSTGRES_PASSWORD}
+      -connectRetries=10
+      migrate
+    volumes:
+      - ./migrations:/flyway/sql:ro
+    depends_on:
+      - kit3d-postgres
+    networks:
+      - kit3d
+
 networks:
   kit3d:
