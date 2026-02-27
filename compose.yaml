@@ -100,8 +100,6 @@ services:
     image: nginx:1.27-alpine
     platform: ${PLATFORM}
     restart: always
-    labels:
-      - "com.centurylinklabs.watchtower.scope=kit3d"
     ports:
       - "80:80"
     volumes:
