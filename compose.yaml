@@ -110,9 +110,6 @@ services:
       - kit3d-back
     networks:
       - kit3d
-    labels:
-    - "com.centurylinklabs.watchtower.scope=kit3d"
-    - "com.centurylinklabs.watchtower.lifecycle.post-update=nginx -s reload"
 
   kit3d-flyway:
     image: flyway/flyway:latest
@@ -138,7 +135,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TZ=Asia/Seoul
-    command: --interval 300 --cleanup --scope kit3d --enable-lifecycle-hooks  # 5분 / 이전 이미지 정리 / 범위
+    command: --interval 60 --cleanup --scope kit3d  # 5분 / 이전 이미지 정리 / 범위
     labels: ["com.centurylinklabs.watchtower.scope=kit3d"]
 
 networks:
