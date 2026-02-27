@@ -1,6 +1,6 @@
 PROJECT ?= kit3d
 COMPOSE ?= compose.yaml
-DEV_COMPOSE ?= compose.dev.yaml
+DEV_COMPOSE ?= compose.dev.yml
 
 .PHONY: all help prod-up prod-down dev-up dev-down
 

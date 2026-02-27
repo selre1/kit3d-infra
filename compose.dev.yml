@@ -10,6 +10,8 @@ services:
       - kit3d-back
     networks:
       - kit3d
+    labels:
+      - "com.centurylinklabs.watchtower.scope=kit3d"
 
   kit3d-back:
     build:
@@ -32,6 +34,8 @@ services:
       - kit3d-rabbitmq
     networks:
       - kit3d
+    labels:
+      - "com.centurylinklabs.watchtower.scope=kit3d"
 
   kit3d-engin:
     build:
@@ -60,6 +64,8 @@ services:
       - kit3d-rabbitmq
     networks:
       - kit3d
+    labels:
+      - "com.centurylinklabs.watchtower.scope=kit3d"
 
   kit3d-postgres:
     image: postgis/postgis:18-3.6
@@ -87,12 +93,14 @@ services:
     ports:
       - "15672:15672"
     networks:
-      - kit3d
+      - kit3ds
 
   kit3d-proxy:
     image: nginx:1.27-alpine
     platform: ${PLATFORM}
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.scope=kit3d"
     ports:
       - "80:80"
     volumes:
@@ -119,6 +127,16 @@ services:
       - kit3d-postgres
     networks:
       - kit3d
+
+  kit3d-watchtower:
+    image: containrrr/watchtower:latest
+    platform: ${PLATFORM}
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --cleanup --scope kit3d
+    labels: ["com.centurylinklabs.watchtower.scope=kit3d"]
+    
 
 networks:
   kit3d:
