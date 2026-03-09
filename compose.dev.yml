@@ -10,7 +10,7 @@ services:
     networks:
       - kit3d
     labels:
-      - "com.centurylinklabs.watchtower.scope=kit3d"
+      - "com.centurylinklabs.watchtower.scope=kit3d-dev"
 
   kit3d-back:
     image: ${REGISTRY}/kit3d-back:${BACK_TAG}
@@ -33,7 +33,7 @@ services:
     networks:
       - kit3d
     labels:
-      - "com.centurylinklabs.watchtower.scope=kit3d"
+      - "com.centurylinklabs.watchtower.scope=kit3d-dev"
 
   kit3d-engin:
     image: ${REGISTRY}/kit3d-engin:${ENGIN_TAG}
@@ -115,7 +115,7 @@ services:
     platform: ${PLATFORM}
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.scope=kit3d"
+      - "com.centurylinklabs.watchtower.scope=kit3d-dev"
     ports:
       - "80:80"
     volumes:
@@ -149,8 +149,8 @@ services:
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 300 --cleanup --scope kit3d
-    labels: ["com.centurylinklabs.watchtower.scope=kit3d"]
+    command: --interval 60 --cleanup --scope kit3d-dev
+    labels: ["com.centurylinklabs.watchtower.scope=kit3d-dev"]
     
 
 networks:
