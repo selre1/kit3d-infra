@@ -1,6 +1,7 @@
 PROJECT ?= kit3d
 COMPOSE ?= compose.yaml
 DEV_COMPOSE ?= compose.dev.yml
+DEV_ENV ?= .env.dev
 
 .PHONY: all help prod-up prod-down dev-up dev-down
 
@@ -21,7 +22,7 @@ prod-down:
 	docker compose -p $(PROJECT) -f $(COMPOSE) down -v
 
 dev-up:
-	docker compose -p $(PROJECT)-dev -f $(DEV_COMPOSE) up -d
+	docker compose --env-file $(DEV_ENV) -p $(PROJECT)-dev -f $(DEV_COMPOSE) up -d
 
 dev-down:
-	docker compose -p $(PROJECT)-dev -f $(DEV_COMPOSE) down -v
+	docker compose --env-file $(DEV_ENV) -p $(PROJECT)-dev -f $(DEV_COMPOSE) down -v
