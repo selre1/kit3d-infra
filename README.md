@@ -14,6 +14,11 @@
 docker compose up -d
 ```
 
+개발환경
+```bash
+ docker compose --env-file .env.dev -f compose.dev.yml up -d
+```
+
 ## 이미지 빌드 (서비스별)
 
 ```bash
