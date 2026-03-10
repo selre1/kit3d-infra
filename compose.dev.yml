@@ -1,4 +1,4 @@
-name: kit3d-dev
+﻿name: kit3d-dev
 
 services:
   kit3d-front:
@@ -17,6 +17,7 @@ services:
     platform: ${PLATFORM}
     restart: unless-stopped
     environment:
+      BACK_WORKERS: ${BACK_WORKERS}
       DB_HOST: kit3d-postgres
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
@@ -90,7 +91,7 @@ services:
     ports:
       - "${PGADMIN_PORT}:80"
     volumes:
-      - ./data/pgadmin:/var/lib/pgadmin
+      - kit3d_pgadmin_data:/var/lib/pgadmin
     depends_on:
       - kit3d-postgres
     networks:
@@ -104,7 +105,7 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     volumes:
-      - ./data/rabbitmq:/var/lib/rabbitmq
+      - kit3d_rabbitmq_data:/var/lib/rabbitmq
     ports:
       - "15672:15672"
     networks:
@@ -155,3 +156,8 @@ services:
 
 networks:
   kit3d:
+
+volumes:
+  kit3d_pgadmin_data:
+  kit3d_rabbitmq_data:
+
