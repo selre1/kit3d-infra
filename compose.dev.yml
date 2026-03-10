@@ -3,7 +3,7 @@
 services:
   kit3d-front:
     image: ${REGISTRY}/kit3d-front:${FRONT_TAG}
-    restart: unless-stopped
+    #restart: unless-stopped
     platform: ${PLATFORM}
     depends_on:
       - kit3d-back
@@ -15,7 +15,7 @@ services:
   kit3d-back:
     image: ${REGISTRY}/kit3d-back:${BACK_TAG}
     platform: ${PLATFORM}
-    restart: unless-stopped
+    #restart: unless-stopped
     environment:
       BACK_WORKERS: ${BACK_WORKERS}
       DB_HOST: kit3d-postgres
@@ -39,7 +39,7 @@ services:
   kit3d-engin:
     image: ${REGISTRY}/kit3d-engin:${ENGIN_TAG}
     platform: ${PLATFORM}
-    restart: unless-stopped
+    #restart: unless-stopped
     environment:
       DB_HOST: kit3d-postgres
       DB_NAME: ${POSTGRES_DB}
@@ -68,7 +68,7 @@ services:
   kit3d-postgres:
     image: postgis/postgis:18-3.6
     platform: ${PLATFORM}
-    restart: unless-stopped
+    #restart: unless-stopped
     environment:
       TZ: Asia/Seoul
       POSTGRES_DB: ${POSTGRES_DB}
@@ -84,7 +84,7 @@ services:
   kit3d-pgadmin:
     image: dpage/pgadmin4:8
     platform: ${PLATFORM}
-    restart: unless-stopped
+    #restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
@@ -100,7 +100,7 @@ services:
   kit3d-rabbitmq:
     image: rabbitmq:3-management
     platform: ${PLATFORM}
-    restart: unless-stopped
+    #restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
@@ -114,7 +114,7 @@ services:
   kit3d-proxy:
     image: nginx:1.27-alpine
     platform: ${PLATFORM}
-    restart: unless-stopped
+    #restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.scope=kit3d-dev"
     ports:
@@ -147,7 +147,7 @@ services:
   kit3d-watchtower:
     image: containrrr/watchtower:latest
     platform: ${PLATFORM}
-    restart: unless-stopped
+    #restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 60 --cleanup --scope kit3d-dev
