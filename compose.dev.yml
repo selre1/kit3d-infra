@@ -23,7 +23,8 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
-      CELERY_QUEUE: import_jobs
+      DEFAULT_QUEUE: import_jobs
+      CELERY_IMPORT_QUEUE: import_jobs
       CELERY_TILES_QUEUE: tile_jobs
       UPLOAD_DIR: /data/assets
     volumes:
@@ -36,7 +37,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.scope=kit3d-dev"
 
-  kit3d-engin:
+  kit3d-engin-import:
     image: ${REGISTRY}/kit3d-engin:${ENGIN_TAG}
     platform: ${PLATFORM}
     #restart: unless-stopped
@@ -47,14 +48,14 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       PGPASSWORD: ${POSTGRES_PASSWORD}
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      DEFAULT_QUEUE: import_jobs
       CELERY_QUEUE: import_jobs
       CELERY_PREFETCH: "1"
       CELERY_BROKER_HEARTBEAT: "0"
+      CELERY_CONCURRENCY: "4"
       ASSETS_DIR: /data/assets
       PG2B3DM_BIN: /usr/local/bin/pg2b3dm
       GLTF_PIPELINE_BIN: /usr/local/bin/gltf-pipeline
-      CELERY_QUEUES: import_jobs,tile_jobs
-      CELERY_CONCURRENCY: "4"
     volumes:
       - ./data/assets:/data/assets
     depends_on:
@@ -63,7 +64,52 @@ services:
     networks:
       - kit3d
     #labels:
-    #  - "com.centurylinklabs.watchtower.scope=kit3d"
+    #  - "com.centurylinklabs.watchtower.scope=kit3d-dev"
+
+  kit3d-engin-tile:
+    image: ${REGISTRY}/kit3d-engin:${ENGIN_TAG}
+    platform: ${PLATFORM}
+    #restart: unless-stopped
+    environment:
+      DB_HOST: kit3d-postgres
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      DEFAULT_QUEUE: import_jobs
+      CELERY_QUEUE: tile_jobs
+      CELERY_PREFETCH: "1"
+      CELERY_BROKER_HEARTBEAT: "0"
+      CELERY_CONCURRENCY: "4"
+      ASSETS_DIR: /data/assets
+      PG2B3DM_BIN: /usr/local/bin/pg2b3dm
+      GLTF_PIPELINE_BIN: /usr/local/bin/gltf-pipeline
+    volumes:
+      - ./data/assets:/data/assets
+    depends_on:
+      - kit3d-postgres
+      - kit3d-rabbitmq
+    networks:
+      - kit3d
+    #labels:
+    #  - "com.centurylinklabs.watchtower.scope=kit3d-dev"
+
+  kit3d-flower:
+    build: kit3d-flower
+    platform: ${PLATFORM}
+    #restart: unless-stopped
+    environment:
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      FLOWER_BASIC_AUTH: ${FLOWER_BASIC_AUTH}
+    ports:
+      - "5555:5555"
+    volumes:
+      - kit3d_flower_data:/data
+    depends_on:
+      - kit3d-rabbitmq
+    networks:
+      - kit3d
 
   kit3d-postgres:
     image: postgis/postgis:18-3.6
@@ -106,6 +152,7 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     volumes:
       - kit3d_rabbitmq_data:/var/lib/rabbitmq
+      - ./kit3d-rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     ports:
       - "15672:15672"
     networks:
@@ -115,8 +162,6 @@ services:
     image: nginx:1.27-alpine
     platform: ${PLATFORM}
     #restart: unless-stopped
-    labels:
-      - "com.centurylinklabs.watchtower.scope=kit3d-dev"
     ports:
       - "80:80"
     volumes:
@@ -160,4 +205,7 @@ networks:
 volumes:
   kit3d_pgadmin_data:
   kit3d_rabbitmq_data:
+  kit3d_flower_data:
+
+
 

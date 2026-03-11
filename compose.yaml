@@ -13,8 +13,6 @@ services:
       - "com.centurylinklabs.watchtower.scope=kit3d"
 
   kit3d-back:
-    # build:
-    #  context: ../kit3d-back
     image: ${REGISTRY}/kit3d-back:${BACK_TAG}
     platform: ${PLATFORM}
     restart: always
@@ -25,7 +23,8 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
-      CELERY_QUEUE: import_jobs
+      DEFAULT_QUEUE: import_jobs
+      CELERY_IMPORT_QUEUE: import_jobs
       CELERY_TILES_QUEUE: tile_jobs
       UPLOAD_DIR: /data/assets
     volumes:
@@ -38,9 +37,7 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.scope=kit3d"
 
-  kit3d-engin:
-    # build:
-    #  context: ../kit3d-engin
+  kit3d-engin-import:
     image: ${REGISTRY}/kit3d-engin:${ENGIN_TAG}
     platform: ${PLATFORM}
     restart: always
@@ -52,13 +49,13 @@ services:
       PGPASSWORD: ${POSTGRES_PASSWORD}
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
       CELERY_QUEUE: import_jobs
+      CELERY_QUEUES: import_jobs
       CELERY_PREFETCH: "1"
       CELERY_BROKER_HEARTBEAT: "0"
+      CELERY_CONCURRENCY: "4"
       ASSETS_DIR: /data/assets
       PG2B3DM_BIN: /usr/local/bin/pg2b3dm
       GLTF_PIPELINE_BIN: /usr/local/bin/gltf-pipeline
-      CELERY_QUEUES: import_jobs,tile_jobs
-      CELERY_CONCURRENCY: "4"
     volumes:
       - ./data/assets:/data/assets
     depends_on:
@@ -69,6 +66,34 @@ services:
     #labels:
     #  - "com.centurylinklabs.watchtower.scope=kit3d"
 
+  kit3d-engin-tile:
+    image: ${REGISTRY}/kit3d-engin:${ENGIN_TAG}
+    platform: ${PLATFORM}
+    restart: always
+    environment:
+      DB_HOST: kit3d-postgres
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      CELERY_QUEUE: import_jobs
+      CELERY_QUEUES: tile_jobs
+      CELERY_PREFETCH: "1"
+      CELERY_BROKER_HEARTBEAT: "0"
+      CELERY_CONCURRENCY: "4"
+      ASSETS_DIR: /data/assets
+      PG2B3DM_BIN: /usr/local/bin/pg2b3dm
+      GLTF_PIPELINE_BIN: /usr/local/bin/gltf-pipeline
+    volumes:
+      - ./data/assets:/data/assets
+    depends_on:
+      - kit3d-postgres
+      - kit3d-rabbitmq
+    networks:
+      - kit3d
+    #labels:
+    #  - "com.centurylinklabs.watchtower.scope=kit3d"
   kit3d-postgres:
     image: postgis/postgis:18-3.6
     platform: ${PLATFORM}
@@ -110,6 +135,7 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     volumes:
       - kit3d_rabbitmq_data:/var/lib/rabbitmq
+      - ./kit3d-rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     ports:
       - "15672:15672"
     networks:
@@ -154,7 +180,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - TZ=Asia/Seoul
-    command: --interval 60 --cleanup --scope kit3d  # 5遺?/ ?댁쟾 ?대?吏 ?뺣━ / 踰붿쐞
+    command: --interval 60 --cleanup --scope kit3d
     labels: ["com.centurylinklabs.watchtower.scope=kit3d"]
 
 networks:
@@ -163,5 +189,7 @@ networks:
 volumes:
   kit3d_pgadmin_data:
   kit3d_rabbitmq_data:
+
+
 
 
