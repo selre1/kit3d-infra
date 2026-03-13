@@ -1,4 +1,4 @@
-﻿name: kit3d
+name: kit3d
 
 services:
   kit3d-front:
@@ -23,6 +23,7 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://kit3d-redis:6379/0
       DEFAULT_QUEUE: import_jobs
       CELERY_IMPORT_QUEUE: import_jobs
       CELERY_TILES_QUEUE: tile_jobs
@@ -32,6 +33,7 @@ services:
     depends_on:
       - kit3d-postgres
       - kit3d-rabbitmq
+      - kit3d-redis
     networks:
       - kit3d
     labels:
@@ -48,6 +50,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       PGPASSWORD: ${POSTGRES_PASSWORD}
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://kit3d-redis:6379/0
       DEFAULT_QUEUE: import_jobs
       CELERY_QUEUE: import_jobs
       CELERY_PREFETCH: "1"
@@ -61,6 +64,7 @@ services:
     depends_on:
       - kit3d-postgres
       - kit3d-rabbitmq
+      - kit3d-redis
     networks:
       - kit3d
     #labels:
@@ -77,6 +81,7 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       PGPASSWORD: ${POSTGRES_PASSWORD}
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://kit3d-redis:6379/0
       DEFAULT_QUEUE: import_jobs
       CELERY_QUEUE: tile_jobs
       CELERY_PREFETCH: "1"
@@ -90,6 +95,7 @@ services:
     depends_on:
       - kit3d-postgres
       - kit3d-rabbitmq
+      - kit3d-redis
     networks:
       - kit3d
     #labels:
@@ -101,6 +107,7 @@ services:
     restart: always
     environment:
       CELERY_BROKER_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@kit3d-rabbitmq:5672//
+      CELERY_RESULT_BACKEND: redis://kit3d-redis:6379/0
       FLOWER_BASIC_AUTH: ${FLOWER_BASIC_AUTH}
     ports:
       - "5555:5555"
@@ -108,6 +115,7 @@ services:
       - kit3d_flower_data:/data
     depends_on:
       - kit3d-rabbitmq
+      - kit3d-redis
     networks:
       - kit3d
 
@@ -155,6 +163,15 @@ services:
       - ./kit3d-rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     ports:
       - "15672:15672"
+    networks:
+      - kit3d
+
+  kit3d-redis:
+    image: redis:7-alpine
+    platform: ${PLATFORM}
+    restart: always
+    volumes:
+      - kit3d_redis_data:/data
     networks:
       - kit3d
 
@@ -206,7 +223,5 @@ networks:
 volumes:
   kit3d_pgadmin_data:
   kit3d_rabbitmq_data:
-
-
-
-
+  kit3d_redis_data:
+  kit3d_flower_data:
