@@ -23,10 +23,12 @@ docker compose up -d
 
 ```bash
 docker compose up -d --pull kit3d-서비스명
+docker compose up -d --force-recreate kit3d-서비스명
 ```
 
 개발환경
 ```bash
+docker compose --env-file .env.dev -f compose.dev.yml up -d --pull kit3d-서비스명
 docker compose --env-file .env.dev -f compose.dev.yml up -d --force-recreate kit3d-서비스명
 ```
 
