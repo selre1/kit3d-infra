@@ -1,4 +1,4 @@
-name: kit3d-dev
+﻿name: kit3d-dev
 
 services:
   kit3d-front:
@@ -212,6 +212,8 @@ services:
     image: containrrr/watchtower:latest
     platform: ${PLATFORM}
     #restart: unless-stopped
+    environment:
+      - TZ=Asia/Seoul
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --interval 60 --cleanup --scope kit3d-dev
