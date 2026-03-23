@@ -106,6 +106,33 @@ services:
     #labels:
     #  - "com.centurylinklabs.watchtower.scope=kit3d-dev"
 
+  kit3d-terrain:
+    image: ${REGISTRY}/kit3d-terrain:${TERRAIN_TAG}
+    platform: ${PLATFORM}
+    environment:
+      DB_HOST: kit3d-postgres
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      CELERY_BROKER_URL: redis://kit3d-redis:6379/1
+      CELERY_RESULT_BACKEND: redis://kit3d-redis:6379/2
+      CELERY_QUEUE: terrain_jobs
+      CELERY_PREFETCH: 1
+      CELERY_BROKER_HEARTBEAT: 0
+      CELERY_AUTOSCALE: "4,1"
+      CTB_TIMEOUT_SEC: 7200
+      TZ: Asia/Seoul
+      ASSETS_DIR: /data/assets
+      LOG_ROOT: /data/log/terrain
+    volumes:
+      - ./data/assets:/data/assets
+      - ./data/log/terrain:/data/log/terrain
+    depends_on:
+      - kit3d-postgres
+      - kit3d-redis
+    networks:
+      - kit3d
+
   kit3d-flower:
     build: kit3d-flower
     platform: ${PLATFORM}
