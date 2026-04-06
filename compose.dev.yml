@@ -58,7 +58,7 @@ services:
       CELERY_PREFETCH: "1"
       CELERY_BROKER_HEARTBEAT: "0"
       #CELERY_CONCURRENCY: "10"
-      CELERY_AUTOSCALE: "10,4"
+      CELERY_AUTOSCALE: "5,4"
       ASSETS_DIR: /data/assets
       PG2B3DM_BIN: /usr/local/bin/pg2b3dm
       GLTF_PIPELINE_BIN: /usr/local/bin/gltf-pipeline
@@ -90,7 +90,7 @@ services:
       CELERY_PREFETCH: "1"
       CELERY_BROKER_HEARTBEAT: "0"
       #CELERY_CONCURRENCY: "4"
-      CELERY_AUTOSCALE: "10,4"
+      CELERY_AUTOSCALE: "5,4"
       ASSETS_DIR: /data/assets
       PG2B3DM_BIN: /usr/local/bin/pg2b3dm
       GLTF_PIPELINE_BIN: /usr/local/bin/gltf-pipeline
