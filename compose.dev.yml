@@ -36,6 +36,8 @@ services:
       - kit3d-postgres
       - kit3d-rabbitmq
       - kit3d-redis
+    ports:
+      - "8080:8080"
     networks:
       - kit3d
     labels:
