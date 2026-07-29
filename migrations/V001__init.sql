@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS ifc_object (
 
 CREATE TABLE IF NOT EXISTS ifc_mesh (
   ifc_object_id BIGINT PRIMARY KEY REFERENCES ifc_object(ifc_object_id) ON DELETE CASCADE,
-  geom          GEOMETRY(MultiPolygonZ, 5186),
+  geom          GEOMETRY(MultiPolygonZ, 5187),
   shaders       JSONB,
   extras        JSONB NOT NULL DEFAULT '{}'
 );
