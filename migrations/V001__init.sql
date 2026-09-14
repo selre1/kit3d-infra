@@ -4,8 +4,12 @@ CREATE TABLE IF NOT EXISTS project (
   project_id   UUID PRIMARY KEY,
   name         TEXT NOT NULL,
   description  TEXT,
+  crs          integer NOT NULL,
+  format       TEXT NOT NULL DEFAULT 'ifc',
   created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_project_format ON project(format);
 
 CREATE TABLE IF NOT EXISTS upload_file (
   file_id      BIGSERIAL PRIMARY KEY,
@@ -63,6 +67,24 @@ CREATE TABLE IF NOT EXISTS tileset (
 CREATE INDEX IF NOT EXISTS idx_tileset_job
   ON tileset(tile_job_id);
 
+CREATE TABLE IF NOT EXISTS fbx_tile_job (
+  fbx_job_id   UUID PRIMARY KEY,
+  project_id   UUID NOT NULL REFERENCES project(project_id) ON DELETE CASCADE,
+  tile_name    TEXT,
+  task_id      TEXT,
+  status       TEXT NOT NULL DEFAULT 'PENDING',
+  options      JSONB NOT NULL DEFAULT '{}',
+  input_dir    TEXT,
+  tileset_url  TEXT,
+  output_dir   TEXT,
+  error        TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  started_at   TIMESTAMPTZ,
+  finished_at  TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_fbx_tile_job_project_id ON fbx_tile_job(project_id);
+
 
 CREATE TABLE IF NOT EXISTS ifc_object (
   ifc_object_id BIGSERIAL PRIMARY KEY,
@@ -78,7 +100,7 @@ CREATE TABLE IF NOT EXISTS ifc_object (
 
 CREATE TABLE IF NOT EXISTS ifc_mesh (
   ifc_object_id BIGINT PRIMARY KEY REFERENCES ifc_object(ifc_object_id) ON DELETE CASCADE,
-  geom          GEOMETRY(MultiPolygonZ, 5187),
+  geom          GEOMETRY(MultiPolygonZ),
   shaders       JSONB,
   extras        JSONB NOT NULL DEFAULT '{}'
 );
